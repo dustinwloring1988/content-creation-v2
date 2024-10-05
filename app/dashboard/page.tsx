@@ -5,9 +5,43 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from 'next/link'
 import { ArrowRight, FileText, Folder, MessageSquare, Settings, Clock } from 'lucide-react'
+import { useState } from 'react'
+import { TipPopup } from '@/components/TipPopup'
 
 export default function Dashboard() {
   const userName = "John" // Replace with actual user name from authentication
+  const [popupContent, setPopupContent] = useState<{ title: string; content: string } | null>(null)
+
+  const tips = [
+    {
+      title: "5 Strategies to Improve Your Content Creation",
+      content: "1. Know your audience\n\n2. Use data to inform your content\n\n3. Create a content calendar\n\n4. Optimize for SEO\n\n5. Repurpose your content"
+    },
+    {
+      title: "Understanding AI in Content Generation",
+      content: "AI can help with content ideation, writing assistance, and even full article generation. However, it's important to review and edit AI-generated content to ensure accuracy and maintain your brand voice."
+    },
+    {
+      title: "Best Practices for SEO-Friendly Content",
+      content: "1. Use relevant keywords\n\n2. Create high-quality, original content\n\n3. Optimize your meta tags\n\n4. Use header tags (H1, H2, etc.) effectively\n\n5. Include internal and external links\n\n6. Optimize images with alt text"
+    },
+    {
+      title: "Mastering the Art of Storytelling in Content",
+      content: "1. Start with a compelling hook\n\n2. Develop relatable characters or scenarios\n\n3. Create a clear narrative structure\n\n4. Use vivid descriptions and sensory details\n\n5. Incorporate emotional elements\n\n6. End with a memorable conclusion or call-to-action"
+    },
+    {
+      title: "Leveraging User-Generated Content for Authenticity",
+      content: "1. Encourage customer reviews and testimonials\n\n2. Run social media contests for user submissions\n\n3. Feature customer success stories\n\n4. Create a branded hashtag for user content\n\n5. Implement a loyalty program with content creation incentives\n\n6. Always obtain permission before using UGC\n\n7. Showcase UGC across multiple marketing channels"
+    }
+  ]
+
+  const openPopup = (index: number) => {
+    setPopupContent(tips[index])
+  }
+
+  const closePopup = () => {
+    setPopupContent(null)
+  }
 
   return (
     <Layout>
@@ -53,25 +87,28 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
-              <li>
-                <Link href="#" className="text-blue-600 hover:underline">
-                  5 Strategies to Improve Your Content Creation
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-blue-600 hover:underline">
-                  Understanding AI in Content Generation
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-blue-600 hover:underline">
-                  Best Practices for SEO-Friendly Content
-                </Link>
-              </li>
+              {tips.map((tip, index) => (
+                <li key={index}>
+                  <Button
+                    variant="link"
+                    className="text-blue-600 hover:underline p-0 h-auto"
+                    onClick={() => openPopup(index)}
+                  >
+                    {tip.title}
+                  </Button>
+                </li>
+              ))}
             </ul>
           </CardContent>
         </Card>
       </div>
+      {popupContent && (
+        <TipPopup
+          title={popupContent.title}
+          content={popupContent.content}
+          onClose={closePopup}
+        />
+      )}
     </Layout>
   )
 }
