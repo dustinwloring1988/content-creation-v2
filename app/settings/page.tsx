@@ -76,24 +76,13 @@ export default function SettingsPage() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label htmlFor="email-notifications">Email Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Receive notifications via email</p>
+                    <Label htmlFor="email-notifications">Use email OTP for login</Label>
+                    <p className="text-sm text-muted-foreground">Use OTP via email</p>
                   </div>
                   <Switch
                     id="email-notifications"
                     checked={emailNotifications}
                     onCheckedChange={setEmailNotifications}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="push-notifications">Push Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Receive push notifications</p>
-                  </div>
-                  <Switch
-                    id="push-notifications"
-                    checked={pushNotifications}
-                    onCheckedChange={setPushNotifications}
                   />
                 </div>
               </CardContent>

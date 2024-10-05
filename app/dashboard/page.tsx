@@ -30,7 +30,7 @@ export default function Dashboard() {
       content: "1. Start with a compelling hook\n\n2. Develop relatable characters or scenarios\n\n3. Create a clear narrative structure\n\n4. Use vivid descriptions and sensory details\n\n5. Incorporate emotional elements\n\n6. End with a memorable conclusion or call-to-action"
     },
     {
-      title: "Leveraging User-Generated Content for Authenticity",
+      title: "Leveraging User-Generated Content",
       content: "1. Encourage customer reviews and testimonials\n\n2. Run social media contests for user submissions\n\n3. Feature customer success stories\n\n4. Create a branded hashtag for user content\n\n5. Implement a loyalty program with content creation incentives\n\n6. Always obtain permission before using UGC\n\n7. Showcase UGC across multiple marketing channels"
     }
   ]
@@ -50,9 +50,14 @@ export default function Dashboard() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <QuickActionCard
-            title="Create New Content"
+            title="Create New Content From Scratch"
             icon={<FileText className="h-6 w-6" />}
             href="/create-content"
+          />
+          <QuickActionCard
+            title="New Content From Templates"
+            icon={<FileText className="h-6 w-6" />}
+            href="/content-templates"
           />
           <QuickActionCard
             title="View My Content"
@@ -60,24 +65,19 @@ export default function Dashboard() {
             href="/my-content"
           />
           <QuickActionCard
-            title="Access Content Templates"
-            icon={<FileText className="h-6 w-6" />}
-            href="/content-templates"
-          />
-          <QuickActionCard
-            title="Request Feedback"
+            title="Request Feedback From AI"
             icon={<MessageSquare className="h-6 w-6" />}
             href="/content-feedback"
+          />
+          <QuickActionCard
+            title="Recent Activity" // TODO: Move to the Setting page make it, its own tab
+            icon={<Clock className="h-6 w-6" />}
+            href="/recent-activity"
           />
           <QuickActionCard
             title="Manage Settings"
             icon={<Settings className="h-6 w-6" />}
             href="/settings"
-          />
-          <QuickActionCard
-            title="Recent Activity"
-            icon={<Clock className="h-6 w-6" />}
-            href="/recent-activity"
           />
         </div>
 

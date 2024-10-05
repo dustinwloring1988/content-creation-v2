@@ -1,9 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import Layout from '@/components/layout'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Grid } from "lucide-react"
+import TemplateVariables from '@/components/TemplateVariables'
 
 const templates = [
   {
@@ -33,35 +35,45 @@ const templates = [
 ]
 
 export default function ContentTemplatesPage() {
+  const [selectedTemplate, setSelectedTemplate] = useState(null)
+
+  const handleUseTemplate = (template: any) => {
+    setSelectedTemplate(template)
+  }
+
   return (
     <Layout>
       <div className="space-y-6">
         <h1 className="text-3xl font-bold">Content Templates</h1>
         <p className="text-muted-foreground">Choose a template to quickly generate content tailored to your needs.</p>
         
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {templates.map((template) => (
-            <Card key={template.id}>
-              <CardHeader>
-                <CardTitle>{template.title}</CardTitle>
-                <CardDescription>{template.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc list-inside space-y-1">
-                  {template.sections.map((section, index) => (
-                    <li key={index}>{section}</li>
-                  ))}
-                </ul>
-              </CardContent>
-              <CardFooter>
-                <Button className="w-full">
-                  <Grid className="mr-2 h-4 w-4" />
-                  Use Template
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+        {!selectedTemplate ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {templates.map((template) => (
+              <Card key={template.id}>
+                <CardHeader>
+                  <CardTitle>{template.title}</CardTitle>
+                  <CardDescription>{template.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc list-inside space-y-1">
+                    {template.sections.map((section, index) => (
+                      <li key={index}>{section}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter>
+                  <Button className="w-full" onClick={() => handleUseTemplate(template)}>
+                    <Grid className="mr-2 h-4 w-4" />
+                    Use Template
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <TemplateVariables template={selectedTemplate} onBack={() => setSelectedTemplate(null)} />
+        )}
       </div>
     </Layout>
   )
