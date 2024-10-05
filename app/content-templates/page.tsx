@@ -12,7 +12,7 @@ const templates = [
     id: 1,
     title: "Blog Post Outline",
     description: "A structured outline for creating engaging blog posts",
-    sections: ["Introduction", "Main Points (3-5)", "Conclusion"]
+    sections: ["Introduction", "Main Points (3-5)", "Key Takeaways", "Conclusion"]
   },
   {
     id: 2,
@@ -30,7 +30,37 @@ const templates = [
     id: 4,
     title: "Email Newsletter",
     description: "Structure for crafting informative and engaging newsletters",
-    sections: ["Subject Line", "Greeting", "Main Content", "Call to Action", "Footer"]
+    sections: ["Subject Line", "Main Content", "Call to Action", "Footer"]
+  },
+  {
+    id: 5,
+    title: "Case Study",
+    description: "Template for creating compelling case studies",
+    sections: ["Client Background", "Challenge", "Solution", "Results"]
+  },
+  {
+    id: 6,
+    title: "Press Release",
+    description: "Structure for writing effective press releases",
+    sections: ["Headline", "Lead Paragraph", "Body", "Boilerplate"]
+  },
+  {
+    id: 7,
+    title: "Video Script",
+    description: "Outline for creating engaging video content",
+    sections: ["Introduction", "Main Content", "Call to Action", "Outro"]
+  },
+  {
+    id: 8,
+    title: "Podcast Episode",
+    description: "Format for planning and structuring podcast episodes",
+    sections: ["Intro and Hook", "Topic Discussion", "Guest Interview", "Closing Thoughts"]
+  },
+  {
+    id: 9,
+    title: "White Paper",
+    description: "Template for creating informative white papers",
+    sections: ["Executive Summary", "Problem Statement", "Proposed Solution", "Conclusion"]
   }
 ]
 

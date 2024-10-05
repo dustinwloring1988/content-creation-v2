@@ -4,13 +4,19 @@ import Layout from '@/components/layout'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from 'next/link'
-import { ArrowRight, FileText, Folder, MessageSquare, Settings, Clock } from 'lucide-react'
+import { ArrowRight, FileText, Folder, MessageSquare, Settings, Clock, LogIn, UserPlus, Key } from 'lucide-react'
 import { useState } from 'react'
 import { TipPopup } from '@/components/TipPopup'
+import SignInPopup from '@/components/SignInPopup'
+import RegisterPopup from '@/components/RegisterPopup'
+import ForgotPasswordPopup from '@/components/ForgotPasswordPopup'
 
 export default function Dashboard() {
-  const userName = "John" // Replace with actual user name from authentication
+  const [userName, setUserName] = useState<string | null>(null)
   const [popupContent, setPopupContent] = useState<{ title: string; content: string } | null>(null)
+  const [showSignIn, setShowSignIn] = useState(false)
+  const [showRegister, setShowRegister] = useState(false)
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
 
   const tips = [
     {
@@ -32,6 +38,26 @@ export default function Dashboard() {
     {
       title: "Leveraging User-Generated Content",
       content: "1. Encourage customer reviews and testimonials\n\n2. Run social media contests for user submissions\n\n3. Feature customer success stories\n\n4. Create a branded hashtag for user content\n\n5. Implement a loyalty program with content creation incentives\n\n6. Always obtain permission before using UGC\n\n7. Showcase UGC across multiple marketing channels"
+    },
+    {
+      title: "Harnessing the Power of Visual Content",
+      content: "1. Use high-quality images and graphics\n\n2. Create infographics to simplify complex information\n\n3. Incorporate videos for higher engagement\n\n4. Use consistent branding across all visuals\n\n5. Optimize images for faster loading times\n\n6. Add alt text to images for accessibility"
+    },
+    {
+      title: "Effective Email Marketing Strategies",
+      content: "1. Segment your email list for targeted content\n\n2. Craft compelling subject lines\n\n3. Personalize email content\n\n4. Use A/B testing to optimize performance\n\n5. Include clear calls-to-action\n\n6. Ensure mobile responsiveness\n\n7. Monitor and analyze email metrics"
+    },
+    {
+      title: "Creating Engaging Social Media Content",
+      content: "1. Know your audience on each platform\n\n2. Use platform-specific features (e.g., Instagram Stories, Twitter polls)\n\n3. Encourage user interaction and engagement\n\n4. Share behind-the-scenes content\n\n5. Utilize trending topics and hashtags\n\n6. Post consistently using a content calendar\n\n7. Collaborate with influencers or other brands"
+    },
+    {
+      title: "Optimizing Content for Voice Search",
+      content: "1. Focus on conversational keywords and phrases\n\n2. Create content that answers specific questions\n\n3. Optimize for featured snippets\n\n4. Improve website loading speed\n\n5. Ensure mobile-friendliness\n\n6. Use structured data markup\n\n7. Create local content for 'near me' searches"
+    },
+    {
+      title: "Measuring Content Marketing Success",
+      content: "1. Set clear, measurable goals\n\n2. Track website traffic and engagement metrics\n\n3. Monitor conversion rates\n\n4. Analyze social media performance\n\n5. Measure SEO improvements\n\n6. Conduct regular content audits\n\n7. Use tools like Google Analytics and social media insights"
     }
   ]
 
@@ -43,10 +69,35 @@ export default function Dashboard() {
     setPopupContent(null)
   }
 
+  const handleSignIn = (email: string, password: string) => {
+    // Implement sign-in logic here
+    console.log('Sign in:', email, password)
+    setShowSignIn(false)
+    setUserName("John") // Replace with actual user name from authentication
+  }
+
+  const handleRegister = (email: string, password: string) => {
+    // Implement register logic here
+    console.log('Register:', email, password)
+    setShowRegister(false)
+  }
+
+  const handleForgotPassword = (email: string) => {
+    // Implement forgot password logic here
+    console.log('Forgot password:', email)
+    setShowForgotPassword(false)
+  }
+
   return (
     <Layout>
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Welcome, {userName}!</h1>
+        {userName ? (
+          <h1 className="text-3xl font-bold">Welcome, {userName}!</h1>
+        ) : (
+          <div className="flex space-x-4">
+          <p>No user logged in</p>
+          </div>
+        )}
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <QuickActionCard
@@ -60,19 +111,14 @@ export default function Dashboard() {
             href="/content-templates"
           />
           <QuickActionCard
-            title="View My Content"
-            icon={<Folder className="h-6 w-6" />}
-            href="/my-content"
-          />
-          <QuickActionCard
             title="Request Feedback From AI"
             icon={<MessageSquare className="h-6 w-6" />}
             href="/content-feedback"
           />
           <QuickActionCard
-            title="Recent Activity" // TODO: Move to the Setting page make it, its own tab
-            icon={<Clock className="h-6 w-6" />}
-            href="/recent-activity"
+            title="View My Content"
+            icon={<Folder className="h-6 w-6" />}
+            href="/my-content"
           />
           <QuickActionCard
             title="Manage Settings"
@@ -102,11 +148,37 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
       {popupContent && (
         <TipPopup
           title={popupContent.title}
           content={popupContent.content}
           onClose={closePopup}
+        />
+      )}
+
+      {showSignIn && (
+        <SignInPopup
+          onClose={() => setShowSignIn(false)}
+          onSignIn={handleSignIn}
+          onForgotPassword={() => {
+            setShowSignIn(false)
+            setShowForgotPassword(true)
+          }}
+        />
+      )}
+
+      {showRegister && (
+        <RegisterPopup
+          onClose={() => setShowRegister(false)}
+          onRegister={handleRegister}
+        />
+      )}
+
+      {showForgotPassword && (
+        <ForgotPasswordPopup
+          onClose={() => setShowForgotPassword(false)}
+          onSubmit={handleForgotPassword}
         />
       )}
     </Layout>

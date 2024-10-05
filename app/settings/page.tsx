@@ -20,11 +20,72 @@ const handleSubscriptionChange = async (newTier: string) => {
   return true
 }
 
+const tiers = [
+  {
+    name: "Free",
+    price: "$0",
+    description: "For individuals just getting started",
+    features: [
+      "5 AI-generated content pieces per month",
+      "Basic templates",
+      "Community support"
+    ]
+  },
+  {
+    name: "Hoobist",
+    price: "$2.99",
+    description: "For posting to your social media accounts",
+    features: [
+      "35 AI-generated content pieces per month",
+      "Basic templates",
+      "Community support"
+    ]
+  },
+  {
+    name: "Basic",
+    price: "$4.99",
+    description: "For small teams getting started",
+    features: [
+      "100 AI-generated content pieces per month",
+      "Advanced templates",
+      "Email support"
+    ]
+  },
+  {
+    name: "Pro",
+    price: "$9.99",
+    description: "For medium to large teams",
+    features: [
+      "250 AI-generated content pieces per month",
+      "Advanced templates",
+      "API access",
+      "Priority email support"
+    ]
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    description: "For large teams and organizations",
+    features: [
+      "Unlimited AI-generated content pieces per month",
+      "Advanced templates",
+      "API access",
+      "Priority email support",
+      "Dedicated account manager"
+    ]
+  }
+]
+
 export default function SettingsPage() {
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [pushNotifications, setPushNotifications] = useState(false)
   const [currentTier, setCurrentTier] = useState("free")
   const [isChangingTier, setIsChangingTier] = useState(false)
+  const [recentActivities, setRecentActivities] = useState([
+    { action: "Changed password", timestamp: "2 days ago" },
+    { action: "Updated email preferences", timestamp: "1 week ago" },
+    { action: "Upgraded to Pro plan", timestamp: "2 weeks ago" },
+  ])
 
   const handleTierChange = async (newTier: string) => {
     setIsChangingTier(true)
@@ -44,7 +105,8 @@ export default function SettingsPage() {
             <TabsTrigger value="account">Account</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="subscription">Subscription</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
+            <TabsTrigger value="change-password">Change Password</TabsTrigger>
+            <TabsTrigger value="recent-activity">Recent Activity</TabsTrigger>
           </TabsList>
           <TabsContent value="account">
             <Card>
@@ -62,8 +124,11 @@ export default function SettingsPage() {
                   <Input id="email" type="email" defaultValue="john@example.com" />
                 </div>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="flex justify-between">
                 <Button>Save Changes</Button>
+                <Button variant="destructive" onClick={() => window.location.href = '/delete-account'}>
+                  Delete Account
+                </Button>
               </CardFooter>
             </Card>
           </TabsContent>
@@ -102,38 +167,81 @@ export default function SettingsPage() {
                       <SelectValue placeholder="Select a plan" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="free">Free</SelectItem>
-                      <SelectItem value="pro">Pro ($19.99/month)</SelectItem>
-                      <SelectItem value="enterprise">Enterprise (Custom pricing)</SelectItem>
+                      {tiers.map((tier) => (
+                        <SelectItem key={tier.name} value={tier.name.toLowerCase()}>
+                          {tier.name} ({tier.price}/month)
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {currentTier === "free" 
-                    ? "Upgrade to access more features." 
-                    : "Downgrades will be processed at the end of your current billing cycle."}
-                </p>
+                <div className="space-y-4">
+                  {tiers.map((tier) => (
+                    <Card key={tier.name} className={currentTier === tier.name.toLowerCase() ? 'border-primary' : ''}>
+                      <CardHeader>
+                        <CardTitle>{tier.name} - {tier.price}/month</CardTitle>
+                        <CardDescription>{tier.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="list-disc list-inside">
+                          {tier.features.map((feature, index) => (
+                            <li key={index}>{feature}</li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                      <CardFooter>
+                        {currentTier !== tier.name.toLowerCase() && (
+                          <Button onClick={() => handleTierChange(tier.name.toLowerCase())}>
+                            {currentTier === 'free' ? 'Upgrade' : 'Change'} to {tier.name}
+                          </Button>
+                        )}
+                      </CardFooter>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="change-password">
+            <Card>
+              <CardHeader>
+                <CardTitle>Change Password</CardTitle>
+                <CardDescription>Update your password here.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="current-password">Current Password</Label>
+                  <Input id="current-password" type="password" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">New Password</Label>
+                  <Input id="new-password" type="password" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">Confirm New Password</Label>
+                  <Input id="confirm-password" type="password" />
+                </div>
               </CardContent>
               <CardFooter>
-                <Link href="/features">
-                  <Button variant="outline">View Plan Details</Button>
-                </Link>
+                <Button>Change Password</Button>
               </CardFooter>
             </Card>
           </TabsContent>
-          <TabsContent value="security">
+          <TabsContent value="recent-activity">
             <Card>
               <CardHeader>
-                <CardTitle>Security Settings</CardTitle>
-                <CardDescription>Manage your account security.</CardDescription>
+                <CardTitle>Recent Activity</CardTitle>
+                <CardDescription>Your recent actions and changes.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <Button variant="outline" className="w-full" onClick={() => window.location.href = '/change-password'}>
-                  Change Password
-                </Button>
-                <Button variant="destructive" className="w-full" onClick={() => window.location.href = '/delete-account'}>
-                  Delete Account
-                </Button>
+              <CardContent>
+                <ul className="space-y-4">
+                  {recentActivities.map((activity, index) => (
+                    <li key={index} className="flex justify-between items-center">
+                      <span>{activity.action}</span>
+                      <span className="text-sm text-muted-foreground">{activity.timestamp}</span>
+                    </li>
+                  ))}
+                </ul>
               </CardContent>
             </Card>
           </TabsContent>

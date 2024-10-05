@@ -22,8 +22,8 @@ export default function ResetPasswordPage() {
           <Button type="submit" className="w-full">Reset Password</Button>
         </form>
         <div className="mt-4 text-center">
-          <Link href="/signin" className="text-sm text-blue-600 hover:underline">
-            Back to Sign In
+          <Link href="/" className="text-sm text-blue-600 hover:underline">
+            Back to our site
           </Link>
         </div>
       </div>
