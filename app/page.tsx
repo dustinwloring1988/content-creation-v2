@@ -3,13 +3,17 @@
 import Layout from '@/components/layout'
 import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation'
+import { getCurrentUser } from '@/lib/supabase'
+import { useState } from 'react'
+import SignInPopup from '@/components/SignInPopup'
+
+// Define or import the 'user' variable
+const user = getCurrentUser(); // Example function to get the user, replace with actual logic
 
 export default function LandingPage() {
   const router = useRouter()
+  const [showSignIn, setShowSignIn] = useState(false)
 
-  const handleGetStarted = () => {
-    router.push('/dashboard')
-  }
 
   return (
     <Layout>
@@ -18,10 +22,6 @@ export default function LandingPage() {
         <p className="text-xl mb-8">Revolutionize your content strategy with cutting-edge AI technology</p>
         <div className="space-y-4">
           <p className="text-lg">Create high-quality content 10x faster, optimize for SEO, and boost your online presence.</p>
-          <div className="space-x-4">
-            <Button size="lg" onClick={handleGetStarted}>Get Started Free</Button>
-            <Button size="lg" variant="outline" onClick={() => router.push('/features')}>Explore Plans</Button>
-          </div>
         </div>
       </div>
       <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -59,6 +59,19 @@ export default function LandingPage() {
           />
         </div>
       </div>
+      {showSignIn && (
+        <SignInPopup
+          onClose={() => setShowSignIn(false)}
+          onSignIn={() => {
+            setShowSignIn(false);
+            router.push('/dashboard');
+          }}
+          onForgotPassword={() => {
+            setShowSignIn(false);
+            // Handle forgot password logic here
+          }}
+        />
+      )}
     </Layout>
   )
 }

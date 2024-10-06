@@ -10,9 +10,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from 'next/link'
-import { changePassword } from '@/lib/supabase'
+import { supabase, changePassword } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
-import { supabase } from '@/lib/supabase'
+import { changeSubscription } from '@/lib/stripe'; // Ensure this import is present
+import Stripe from 'stripe';
+
+// Initialize Stripe with your secret key
+const stripe = new Stripe('your-secret-key', {
+  apiVersion: '2024-09-30.acacia',
+});
 
 // Mock function to simulate Stripe integration
 const handleSubscriptionChange = async (newTier: string) => {
@@ -94,6 +100,7 @@ export default function SettingsPage() {
   useEffect(() => {
     const fetchUserSettings = async () => {
       const { data: { user } } = await supabase.auth.getUser()
+      console.log(user);
       if (user) {
         setDisplayName(user.user_metadata.display_name || '')
         setEmail(user.email || '') // Add this line to set the email
@@ -115,12 +122,41 @@ export default function SettingsPage() {
   }, [])
 
   const handleTierChange = async (newTier: string) => {
-    setIsChangingTier(true)
-    const success = await handleSubscriptionChange(newTier)
-    if (success) {
-      setCurrentTier(newTier)
+    setIsChangingTier(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user logged in');
+
+      let stripeCustomerId = user.user_metadata.stripe_customer_id;
+
+      if (!stripeCustomerId) {
+        // Create a new Stripe customer
+        const customer = await stripe.customers.create({
+          email: user.email,
+          metadata: { userId: user.id }
+        });
+
+        stripeCustomerId = customer.id;
+
+        // Save the new customer ID to the user's metadata
+        await supabase.auth.updateUser({
+          data: { stripe_customer_id: stripeCustomerId }
+        });
+      }
+
+      // Call the changeSubscription function
+      const updatedSubscription = await changeSubscription(stripeCustomerId, newTier);
+      if (updatedSubscription) {
+        setCurrentTier(newTier);
+        toast.success('Subscription updated successfully');
+      }
+    } catch (error) {
+      console.error('Error changing subscription:', error);
+      toast.error('Failed to change subscription');
+    } finally {
+      setIsChangingTier(false);
     }
-    setIsChangingTier(false)
   }
 
   const handleChangePassword = async () => {
@@ -131,8 +167,8 @@ export default function SettingsPage() {
       return
     }
     
-    const { success, error } = await changePassword(currentPassword, newPassword)
-    if (success) {
+    const { user, error } = await changePassword(newPassword) // Adjusted to pass only one argument
+    if (user) {
       toast.success('Password changed successfully')
       console.log('Password changed successfully')
       // Reset password fields

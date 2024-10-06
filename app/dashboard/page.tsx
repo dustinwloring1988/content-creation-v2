@@ -75,7 +75,6 @@ export default function Dashboard() {
       content: "1. Set clear, measurable goals\n\n2. Track website traffic and engagement metrics\n\n3. Monitor conversion rates\n\n4. Analyze social media performance\n\n5. Measure SEO improvements\n\n6. Conduct regular content audits\n\n7. Use tools like Google Analytics and social media insights"
     }
   ]
-
   const openPopup = (index: number) => {
     setPopupContent(tips[index])
   }

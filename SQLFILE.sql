@@ -14,6 +14,7 @@ CREATE TABLE settings (
     theme TEXT NOT NULL DEFAULT 'light',
     language TEXT NOT NULL DEFAULT 'en',
     tier TEXT NOT NULL DEFAULT 'free',
+    stripe_customer_id UUID,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (user_id)

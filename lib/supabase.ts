@@ -153,13 +153,14 @@ export const registerUser = async (email: string, password: string): Promise<{ u
 };
 
 // 12. Insert Default Settings
-const insertDefaultSettings = async (userId: string): Promise<void> => {
+const insertDefaultSettings = async (userId: string, stripeCustomerId: string): Promise<void> => {
   try {
     const { error } = await supabase.from('settings').insert({
       user_id: userId,
       theme: 'light',
       language: 'en',
-      tier: 'free'
+      tier: 'free',
+      stripe_customer_id: stripeCustomerId
     });
     if (error) throw error;
   } catch (error) {
