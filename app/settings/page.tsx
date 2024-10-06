@@ -13,21 +13,9 @@ import Link from 'next/link'
 import { supabase, changePassword } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
 import { changeSubscription } from '@/lib/stripe'; // Ensure this import is present
-import Stripe from 'stripe';
+import { initStripe } from '@/lib/utils';
 
-// Initialize Stripe with your secret key
-const stripe = new Stripe('your-secret-key', {
-  apiVersion: '2024-09-30.acacia',
-});
-
-// Mock function to simulate Stripe integration
-const handleSubscriptionChange = async (newTier: string) => {
-  // In a real application, this would interact with Stripe
-  console.log(`Changing subscription to ${newTier}`)
-  // Simulating an API call
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  return true
-}
+const stripe = initStripe();
 
 const tiers = [
   {

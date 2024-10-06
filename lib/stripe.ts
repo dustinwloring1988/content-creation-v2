@@ -1,8 +1,6 @@
-import { Stripe } from 'stripe';
+import { initStripe } from './utils';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2024-09-30.acacia', // Use the latest API version
-});
+const stripe = initStripe();
 
 export const changeSubscription = async (customerId: string, newTier: string) => {
   try {
