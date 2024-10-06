@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Layout from '@/components/layout'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,6 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from 'next/link'
+import { changePassword } from '@/lib/supabase'
+import { toast } from 'react-hot-toast'
+import { supabase } from '@/lib/supabase'
 
 // Mock function to simulate Stripe integration
 const handleSubscriptionChange = async (newTier: string) => {
@@ -77,15 +80,39 @@ const tiers = [
 ]
 
 export default function SettingsPage() {
-  const [emailNotifications, setEmailNotifications] = useState(true)
-  const [pushNotifications, setPushNotifications] = useState(false)
   const [currentTier, setCurrentTier] = useState("free")
   const [isChangingTier, setIsChangingTier] = useState(false)
-  const [recentActivities, setRecentActivities] = useState([
-    { action: "Changed password", timestamp: "2 days ago" },
-    { action: "Updated email preferences", timestamp: "1 week ago" },
-    { action: "Upgraded to Pro plan", timestamp: "2 weeks ago" },
-  ])
+  const [darkMode, setDarkMode] = useState(false)
+  const [language, setLanguage] = useState("en")
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [displayName, setDisplayName] = useState('')
+  const [email, setEmail] = useState('')
+
+  useEffect(() => {
+    const fetchUserSettings = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setDisplayName(user.user_metadata.display_name || '')
+        setEmail(user.email || '') // Add this line to set the email
+
+        const { data: settings } = await supabase
+          .from('settings')
+          .select('theme, language')
+          .eq('user_id', user.id)
+          .single()
+        
+        if (settings) {
+          setDarkMode(settings.theme === 'dark')
+          setLanguage(settings.language)
+        }
+      }
+    }
+
+    fetchUserSettings()
+  }, [])
 
   const handleTierChange = async (newTier: string) => {
     setIsChangingTier(true)
@@ -96,6 +123,56 @@ export default function SettingsPage() {
     setIsChangingTier(false)
   }
 
+  const handleChangePassword = async () => {
+    setPasswordError(null)
+    if (newPassword !== confirmPassword) {
+      setPasswordError("New passwords don't match")
+      toast.error("New passwords don't match")
+      return
+    }
+    
+    const { success, error } = await changePassword(currentPassword, newPassword)
+    if (success) {
+      toast.success('Password changed successfully')
+      console.log('Password changed successfully')
+      // Reset password fields
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+    } else {
+      setPasswordError(error || 'Failed to change password')
+      toast.error(error || 'Failed to change password')
+    }
+  }
+
+  const handleSaveChanges = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('No user logged in')
+
+      // Update user profile (display name)
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { display_name: displayName }
+      })
+      if (updateError) throw updateError
+
+      // Update user settings (theme and language)
+      const { error: settingsError } = await supabase.from('settings').upsert({
+        user_id: user.id,
+        theme: darkMode ? 'dark' : 'light',
+        language: language
+      }, {
+        onConflict: 'user_id'
+      })
+      if (settingsError) throw settingsError
+
+      toast.success('Settings saved successfully')
+    } catch (error) {
+      console.error('Error saving settings:', error)
+      toast.error('Failed to save settings')
+    }
+  }
+
   return (
     <Layout>
       <div className="max-w-2xl mx-auto">
@@ -103,54 +180,60 @@ export default function SettingsPage() {
         <Tabs defaultValue="account" className="w-full">
           <TabsList>
             <TabsTrigger value="account">Account</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="subscription">Subscription</TabsTrigger>
             <TabsTrigger value="change-password">Change Password</TabsTrigger>
-            <TabsTrigger value="recent-activity">Recent Activity</TabsTrigger>
           </TabsList>
           <TabsContent value="account">
             <Card>
               <CardHeader>
                 <CardTitle>Account Information</CardTitle>
-                <CardDescription>Update your account details here.</CardDescription>
+                <CardDescription>Update your account details and preferences here.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Name</Label>
-                  <Input id="name" defaultValue="John Doe" />
+                  <Input 
+                    id="name" 
+                    value={displayName} 
+                    onChange={(e) => setDisplayName(e.target.value)} 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" defaultValue="john@example.com" />
+                  <Input id="email" type="email" value={email} readOnly className="bg-gray-100 cursor-not-allowed" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="dark-mode">Dark Mode</Label>
+                    <p className="text-sm text-muted-foreground">Toggle dark mode on or off</p>
+                  </div>
+                  <Switch
+                    id="dark-mode"
+                    checked={darkMode}
+                    onCheckedChange={setDarkMode}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="language">Language</Label>
+                  <Select value={language} onValueChange={setLanguage}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="es">Español</SelectItem>
+                      <SelectItem value="fr">Français</SelectItem>
+                      <SelectItem value="de">Deutsch</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
-                <Button>Save Changes</Button>
+                <Button onClick={handleSaveChanges}>Save Changes</Button>
                 <Button variant="destructive" onClick={() => window.location.href = '/delete-account'}>
                   Delete Account
                 </Button>
               </CardFooter>
-            </Card>
-          </TabsContent>
-          <TabsContent value="notifications">
-            <Card>
-              <CardHeader>
-                <CardTitle>Notification Preferences</CardTitle>
-                <CardDescription>Manage your notification settings.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="email-notifications">Use email OTP for login</Label>
-                    <p className="text-sm text-muted-foreground">Use OTP via email</p>
-                  </div>
-                  <Switch
-                    id="email-notifications"
-                    checked={emailNotifications}
-                    onCheckedChange={setEmailNotifications}
-                  />
-                </div>
-              </CardContent>
             </Card>
           </TabsContent>
           <TabsContent value="subscription">
@@ -211,38 +294,36 @@ export default function SettingsPage() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="current-password">Current Password</Label>
-                  <Input id="current-password" type="password" />
+                  <Input
+                    id="current-password"
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="new-password">New Password</Label>
-                  <Input id="new-password" type="password" />
+                  <Input
+                    id="new-password"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirm-password">Confirm New Password</Label>
-                  <Input id="confirm-password" type="password" />
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
                 </div>
+                {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
               </CardContent>
               <CardFooter>
-                <Button>Change Password</Button>
+                <Button onClick={handleChangePassword}>Change Password</Button>
               </CardFooter>
-            </Card>
-          </TabsContent>
-          <TabsContent value="recent-activity">
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>Your recent actions and changes.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-4">
-                  {recentActivities.map((activity, index) => (
-                    <li key={index} className="flex justify-between items-center">
-                      <span>{activity.action}</span>
-                      <span className="text-sm text-muted-foreground">{activity.timestamp}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
             </Card>
           </TabsContent>
         </Tabs>

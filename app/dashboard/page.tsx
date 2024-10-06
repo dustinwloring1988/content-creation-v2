@@ -5,18 +5,33 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from 'next/link'
 import { ArrowRight, FileText, Folder, MessageSquare, Settings, Clock, LogIn, UserPlus, Key } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { TipPopup } from '@/components/TipPopup'
-import SignInPopup from '@/components/SignInPopup'
-import RegisterPopup from '@/components/RegisterPopup'
-import ForgotPasswordPopup from '@/components/ForgotPasswordPopup'
 
 export default function Dashboard() {
   const [userName, setUserName] = useState<string | null>(null)
   const [popupContent, setPopupContent] = useState<{ title: string; content: string } | null>(null)
-  const [showSignIn, setShowSignIn] = useState(false)
-  const [showRegister, setShowRegister] = useState(false)
-  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [showSignIn, setShowSignIn] = useState(true)
+  const [showRegister, setShowRegister] = useState(true)
+  const [showForgotPassword, setShowForgotPassword] = useState(true)
+  const router = useRouter()
+
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true'
+    setIsLoggedIn(loggedIn)
+    if (!loggedIn) {
+      router.push('/')
+    } else {
+      // Fetch user name or other user data here
+      setUserName("John") // Replace with actual user name from authentication
+    }
+  }, [router])
+
+  if (!isLoggedIn) {
+    return null // Return null while redirecting
+  }
 
   const tips = [
     {
@@ -154,31 +169,6 @@ export default function Dashboard() {
           title={popupContent.title}
           content={popupContent.content}
           onClose={closePopup}
-        />
-      )}
-
-      {showSignIn && (
-        <SignInPopup
-          onClose={() => setShowSignIn(false)}
-          onSignIn={handleSignIn}
-          onForgotPassword={() => {
-            setShowSignIn(false)
-            setShowForgotPassword(true)
-          }}
-        />
-      )}
-
-      {showRegister && (
-        <RegisterPopup
-          onClose={() => setShowRegister(false)}
-          onRegister={handleRegister}
-        />
-      )}
-
-      {showForgotPassword && (
-        <ForgotPasswordPopup
-          onClose={() => setShowForgotPassword(false)}
-          onSubmit={handleForgotPassword}
         />
       )}
     </Layout>

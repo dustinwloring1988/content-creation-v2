@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { supabase } from '@/lib/supabase'
+import { toast } from 'react-hot-toast'
 
 interface ForgotPasswordPopupProps {
   onClose: () => void
@@ -10,10 +12,13 @@ interface ForgotPasswordPopupProps {
 
 export default function ForgotPasswordPopup({ onClose, onSubmit }: ForgotPasswordPopupProps) {
   const [email, setEmail] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    onSubmit(email)
+    setIsLoading(true)
+    await onSubmit(email)
+    setIsLoading(false)
   }
 
   return (
@@ -30,7 +35,9 @@ export default function ForgotPasswordPopup({ onClose, onSubmit }: ForgotPasswor
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-          <Button type="submit" className="w-full">Reset Password</Button>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? 'Sending...' : 'Reset Password'}
+          </Button>
         </form>
       </DialogContent>
     </Dialog>

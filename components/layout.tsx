@@ -1,36 +1,56 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import SignInPopup from '@/components/SignInPopup'
 import RegisterPopup from '@/components/RegisterPopup'
 import ForgotPasswordPopup from '@/components/ForgotPasswordPopup'
 import {LogIn, UserPlus, Key } from 'lucide-react'
+import { Toaster } from "react-hot-toast"
+import { useRouter } from 'next/navigation'
+
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [showSignIn, setShowSignIn] = useState(false)
   const [showRegister, setShowRegister] = useState(false)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const router = useRouter()
+
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true'
+    setIsLoggedIn(loggedIn)
+  }, [])
 
   const handleSignIn = (email: string, password: string) => {
     // Implement sign-in logic here
     console.log('Sign in:', email, password)
     setShowSignIn(false)
     setIsLoggedIn(true)
+    localStorage.setItem('isLoggedIn', 'true')
   }
 
-  const handleRegister = (email: string, password: string) => {
-    // Implement register logic here
-    console.log('Register:', email, password)
-    setShowRegister(false)
+  const handleRegister = async (user: any) => {
+    if (user) {
+      console.log('User registered:', user)
+      setShowRegister(false)
+      setIsLoggedIn(true)
+      localStorage.setItem('isLoggedIn', 'true')
+      // You might want to save additional user data or perform other actions here
+    }
   }
 
   const handleForgotPassword = (email: string) => {
     // Implement forgot password logic here
     console.log('Forgot password:', email)
     setShowForgotPassword(false)
+  }
+
+  const handleLogout = () => {
+    setIsLoggedIn(false)
+    localStorage.removeItem('isLoggedIn')
+    router.push('/')
   }
 
   return (
@@ -43,7 +63,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <>
                 <Link href="/dashboard" passHref><Button variant="ghost">Dashboard</Button></Link>
                 <Link href="/settings" passHref><Button variant="ghost">Settings</Button></Link>
-                <Button variant="ghost" onClick={() => setIsLoggedIn(false)}>Logout</Button>
+                <Button variant="ghost" onClick={handleLogout}>Logout</Button>
               </>
             ) : (
               <>
@@ -80,7 +100,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {showSignIn && (
         <SignInPopup
           onClose={() => setShowSignIn(false)}
-          onSignIn={handleSignIn}
+          onSignIn={() => handleSignIn('', '')}
           onForgotPassword={() => {
             setShowSignIn(false)
             setShowForgotPassword(true)
@@ -99,6 +119,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           onSubmit={handleForgotPassword}
         />
       )}
+      <Toaster />
     </div>
   )
 }

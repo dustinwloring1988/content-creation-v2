@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Download, Save } from "lucide-react"
+import { useRouter } from 'next/navigation'
 
 export default function ContentReviewPage() {
   const [generatedContent, setGeneratedContent] = useState("This is an example of AI-generated content. It would typically be much longer and more detailed, covering the topic requested by the user.")
   const [editedContent, setEditedContent] = useState(generatedContent)
+  const router = useRouter()
 
   const handleSave = () => {
     // Here you would typically save the edited content to your backend
@@ -19,6 +21,11 @@ export default function ContentReviewPage() {
   const handleDownload = () => {
     // Here you would typically generate a downloadable file
     console.log("Downloading content:", editedContent)
+  }
+
+  const handleRequestFeedback = () => {
+    const encodedContent = encodeURIComponent(editedContent)
+    router.push(`/content-feedback?content=${encodedContent}`)
   }
 
   return (
@@ -55,6 +62,9 @@ export default function ContentReviewPage() {
               <Button variant="outline" onClick={handleDownload}>
                 <Download className="mr-2 h-4 w-4" />
                 Download
+              </Button>
+              <Button variant="secondary" onClick={handleRequestFeedback}>
+                Request Feedback
               </Button>
             </CardFooter>
           </Card>

@@ -4,9 +4,12 @@ This project is a Content Management System (CMS) built with Next.js, designed t
 
 ## Features
 
+- Content Creation: Create new content using customizable templates
 - Content Templates: Create and manage reusable content templates
 - Content Review: Facilitate the review process for created content
 - Content Feedback: Provide and manage feedback on content
+- Dashboard: Overview of content statistics and recent activities
+- Settings: Customize user preferences and application settings
 - My Content: Personal dashboard for managing individual content
 - Support: Access help and support resources
 - Legal: View legal information and policies
@@ -15,9 +18,12 @@ This project is a Content Management System (CMS) built with Next.js, designed t
 
 The main application pages are organized as follows:
 
+- `app/create-content/page.tsx`: Content Creation page
 - `app/content-templates/page.tsx`: Content Templates page
 - `app/content-review/page.tsx`: Content Review page
 - `app/content-feedback/page.tsx`: Content Feedback page
+- `app/dashboard/page.tsx`: Dashboard page
+- `app/settings/page.tsx`: Settings page
 - `app/my-content/page.tsx`: My Content page
 - `app/support/page.tsx`: Support page
 - `app/legal/page.tsx`: Legal information page
@@ -29,21 +35,23 @@ The main application pages are organized as follows:
    ```bash
    npm install
    ```
-3. Run the development server:
+3. Set up environment variables (see Environment Variables section)
+4. Run the development server:
    ```bash
    npm run dev
    ```
-4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application
+5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application
 
 ## Technologies Used
 
 - Next.js
 - TypeScript
 - React
+- SQL (for database operations)
 
 ## Configuration
 
-The project uses TypeScript, and the configuration can be found in `tsconfig.json`.
+The project uses TypeScript, and the configuration can be found in `tsconfig.json`. Database schema and queries are defined in `SQLFILE.sql`.
 
 ## Contributing
 
